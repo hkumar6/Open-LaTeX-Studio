@@ -5,7 +5,7 @@
 
     <groupId>openlatexstudio</groupId>
     <artifactId>OpenLaTeXStudio-parent</artifactId>
-    <version>development</version>
+    <version>1.5.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>OpenLaTeXStudio-parent</name>
@@ -70,6 +70,11 @@
                 <version>${netbeans.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.netbeans.api</groupId>
+                <artifactId>org-openide-util</artifactId>
+                <version>${netbeans.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>2.2</version>
@@ -77,7 +82,7 @@
             <dependency>
                 <groupId>org.apache.pdfbox</groupId>
                 <artifactId>pdfbox</artifactId>
-                <version>1.8.7</version>
+                <version>2.0.2</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -92,7 +97,7 @@
             <dependency>
                 <groupId>com.fifesoft</groupId>
                 <artifactId>rsyntaxtextarea</artifactId>
-                <version>2.5.8</version>
+                <version>2.6.0</version>
             </dependency>
             <dependency>
                 <groupId>com.fifesoft</groupId>

@@ -30,7 +30,8 @@ import org.openide.windows.WindowManager;
 )
 @ActionReferences({
     @ActionReference(path = "Menu/Edit", position = 200),
-    @ActionReference(path = "Toolbars/Comment", position = 3333)
+    @ActionReference(path = "Toolbars/Comment", position = 3333),
+    @ActionReference(path = "Shortcuts", name = "D-CLOSE_BRACKET")
 })
 @Messages("CTL_ToggleComment=Toggle Comment")
 public final class ToggleComment implements ActionListener {
@@ -40,7 +41,7 @@ public final class ToggleComment implements ActionListener {
         TopComponent tc = WindowManager.getDefault().findTopComponent("EditorTopComponent");
         EditorTopComponent etc = (EditorTopComponent) tc;
         etc.commentOutText();
-        etc.setDirty(true);
+        etc.getEditorState().setDirty(true);
     }
 
 }

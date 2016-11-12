@@ -23,7 +23,13 @@ public final class ApplicationUtils {
     private static final String PREVIEW_SOURCE_FILENAME = "preview.tex";
     private static final String PREVIEW_PDF_FILENAME = "preview.pdf";
     private static final String SETTINGS_FILENAME = "settings.properties";
-    
+    public static final String TEX_NAME = "tex";
+    public static final String TEX_EXTENSION = ".tex";
+
+    private static final String APP_PROPERTIES = "application.properties";
+    private static final String APP_VERSION = PropertyService.
+            readProperties(APP_PROPERTIES).getProperty("application.version");
+     
     public static final String PDFLATEX = "pdflatex";
     
     public static final String TEMPLATES_DIR = "/openlatexstudio/templates/";
@@ -72,6 +78,10 @@ public final class ApplicationUtils {
             tempDir.mkdir();
         }
         return tempDir.getAbsolutePath();
+    }
+    
+    public static String getAppVersion() {
+        return APP_VERSION;
     }
     
     public static void deleteTempFiles() {
