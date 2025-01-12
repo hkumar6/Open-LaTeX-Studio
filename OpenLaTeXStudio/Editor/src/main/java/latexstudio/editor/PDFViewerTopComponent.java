@@ -10,7 +10,7 @@ import java.awt.Point;
 import javax.swing.JPanel;
 import javax.swing.JViewport;
 import latexstudio.editor.pdf.PDFDisplay;
-import latexstudio.editor.pdf.PDFPreviewRefresher;
+import latexstudio.editor.runtime.PeriodicTasksService;
 import latexstudio.editor.pdf.PDFService;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
@@ -141,10 +141,10 @@ public final class PDFViewerTopComponent extends TopComponent {
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 171, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 125, Short.MAX_VALUE)
                         .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jSpinnerZoom, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jSpinnerZoom, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -269,7 +269,7 @@ public final class PDFViewerTopComponent extends TopComponent {
     
     @Override
     public void componentOpened() {       
-        Thread refresher = new Thread(new PDFPreviewRefresher(jScrollPane1, jLabel2, etc, pdfDisplay));
+        Thread refresher = new Thread(new PeriodicTasksService(jScrollPane1, jLabel2, etc, pdfDisplay));
         refresher.start();
     }
 

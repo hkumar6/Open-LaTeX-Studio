@@ -17,6 +17,7 @@ public class EditorState {
     private boolean dirty;
     private boolean modified;
     private boolean previewDisplayed;
+    private boolean spellCheckActive;   
     private File currentFile;
     private DbxState dbxState;
     
@@ -24,6 +25,7 @@ public class EditorState {
         dirty = false;
         modified = false;
         previewDisplayed = true;
+        spellCheckActive = false;
     }
 
     public boolean isDirty() {
@@ -36,6 +38,10 @@ public class EditorState {
 
     public boolean isPreviewDisplayed() {
         return previewDisplayed;
+    }
+           
+    public boolean isSpellCheckActive() {
+        return spellCheckActive;
     }
 
     public File getCurrentFile() {
@@ -56,6 +62,10 @@ public class EditorState {
 
     public void setPreviewDisplayed(boolean previewDisplayed) {
         this.previewDisplayed = previewDisplayed;
+    }
+
+    public void setSpellCheckActive(boolean spellCheckActive) {
+        this.spellCheckActive = spellCheckActive;
     }
 
     public void setCurrentFile(File currentFile) {

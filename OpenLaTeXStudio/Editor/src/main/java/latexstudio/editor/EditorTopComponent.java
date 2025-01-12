@@ -5,17 +5,22 @@
  */
 package latexstudio.editor;
 
-import com.dropbox.core.DbxAccountInfo;
-import com.dropbox.core.DbxClient;
 import com.dropbox.core.DbxException;
+import com.dropbox.core.v2.DbxClientV2;
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
 import latexstudio.editor.files.FileService;
 import latexstudio.editor.remote.Cloud;
 import latexstudio.editor.remote.DbxUtil;
@@ -27,6 +32,11 @@ import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.autocomplete.BasicCompletion;
 import org.fife.ui.autocomplete.CompletionProvider;
 import org.fife.ui.autocomplete.DefaultCompletionProvider;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.languagetool.JLanguageTool;
+import org.languagetool.language.AmericanEnglish;
+import org.languagetool.rules.Rule;
+import org.languagetool.rules.spelling.SpellingCheckRule;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -63,6 +73,10 @@ public final class EditorTopComponent extends TopComponent {
     private final EditorState editorState = new EditorState();
     private AutoCompletion autoCompletion = null;
     private static final ApplicationLogger LOGGER = new ApplicationLogger("Cloud Support");
+    private JLanguageTool langTool = null;
+    private Highlighter.HighlightPainter painter = null;
+    private boolean spellCheckStatusChange = true;
+    private Thread autoCheckThread = null;
 
     public EditorTopComponent() {
         initComponents();
@@ -73,6 +87,7 @@ public final class EditorTopComponent extends TopComponent {
         putClientProperty(TopComponent.PROP_UNDOCKING_DISABLED, Boolean.TRUE);
 
         displayCloudStatus();
+        setupSpellCheckTool();
     }
 
     @SettingListener(setting = ApplicationSettings.Setting.AUTOCOMPLETE_ENABLED)
@@ -201,6 +216,46 @@ public final class EditorTopComponent extends TopComponent {
         editorState.setDirty(true);
     }
 
+    public Thread getAutoCheckThread() {
+        return autoCheckThread;
+    }
+
+    public void setAutoCheckThread(Thread autoCheckThread) {
+        this.autoCheckThread = autoCheckThread;
+    }  
+    
+    public RSyntaxTextArea getrSyntaxTextArea() {
+        return rSyntaxTextArea;
+    }
+
+    public void setrSyntaxTextArea(RSyntaxTextArea rSyntaxTextArea) {
+        this.rSyntaxTextArea = rSyntaxTextArea;
+    }
+
+    public JLanguageTool getLangTool() {
+        return langTool;
+    }
+
+    public void setLangTool(JLanguageTool langTool) {
+        this.langTool = langTool;
+    }
+
+    public Highlighter.HighlightPainter getPainter() {
+        return painter;
+    }
+
+    public void setPainter(Highlighter.HighlightPainter painter) {
+        this.painter = painter;
+    }
+
+    public boolean isSpellCheckStatusChange() {
+        return spellCheckStatusChange;
+    }
+
+    public void setSpellCheckStatusChange(boolean spellCheckStatusChange) {
+        this.spellCheckStatusChange = spellCheckStatusChange;
+    }
+
     public void undoAction() {
         rSyntaxTextArea.undoLastAction();
     }
@@ -320,34 +375,57 @@ public final class EditorTopComponent extends TopComponent {
     }
 
     private void displayCloudStatus() {
-
-        boolean isConnected = false;
-        String message;
-        DbxAccountInfo info = null;
+        String message = "Working locally.";
+        String displayName;
 
         // Check Dropbox connection
-        DbxClient client = DbxUtil.getDbxClient();
-        if (client != null) {
-            String userToken = client.getAccessToken();
-            if (userToken != null && !userToken.isEmpty()) {
-                try {
-                    info = client.getAccountInfo();
-                    isConnected = true;
-                } catch (DbxException ex) {
-                    // simply stay working locally.
-                }
+        DbxClientV2 client = DbxUtil.getDbxClient();
+        if (client != null) {  
+            try {
+                displayName = client.users().getCurrentAccount().getName().getDisplayName();
+                message = "Connected to Dropbox account as " + displayName + ".";
+                Cloud.getInstance().setStatus(Cloud.Status.DBX_CONNECTED, " (" + displayName + ")");
+            } catch (DbxException ex) {
+                // simply stay working locally.
+                Cloud.getInstance().setStatus(Cloud.Status.DISCONNECTED);
             }
         }
-
-        if (isConnected) {
-            message = "Connected to Dropbox account as " + info.displayName + ".";
-            Cloud.getInstance().setStatus(Cloud.Status.DBX_CONNECTED, " (" + info.displayName + ")");
-        } else {
-            message = "Working locally.";
-            Cloud.getInstance().setStatus(Cloud.Status.DISCONNECTED);
-        }
-
+        
         LOGGER.log(message);
+    }
+    
+    private void setupSpellCheckTool() {     
+        painter = new DefaultHighlighter.DefaultHighlightPainter(Color.PINK);  //Default color is: PINK
+        langTool = new JLanguageTool(new AmericanEnglish());    //Default Language is: American English
+        for (Rule rule : langTool.getAllActiveRules()) {
+            if (rule instanceof SpellingCheckRule) {
+                ((SpellingCheckRule)rule).acceptPhrases(getLatexTerms());  //Accept LaText Terms from tex.cwl
+                ((SpellingCheckRule)rule).acceptPhrases(Arrays.asList("documentclass", "maketitle", "tex", "TEX", "Tex"));  //Accept some TEX terms not contained in tex.cwl
+            }
+        }
+    }
+    
+    private List<String> getLatexTerms() {
+        List latexTerms = new ArrayList<>();
+        InputStream is = null;
+        URL latexTermsResource;
+        try {
+            latexTermsResource = getClass().getResource("/openlatexstudio/tex.cwl");
+            is = latexTermsResource.openStream();
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (!line.startsWith("#")) {
+                    latexTerms.add(line.substring(1));  //LanguageTool cannot recognize string starts with "\"
+                }
+            }
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
+        
+        return latexTerms;
     }
 
     public UnsavedWorkState canOpen() {

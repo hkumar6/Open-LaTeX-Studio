@@ -5,7 +5,7 @@
 
     <groupId>openlatexstudio</groupId>
     <artifactId>OpenLaTeXStudio-parent</artifactId>
-    <version>1.5.0-SNAPSHOT</version>
+    <version>1.6.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>OpenLaTeXStudio-parent</name>
@@ -61,6 +61,11 @@
             </dependency>
             <dependency>
                 <groupId>org.netbeans.api</groupId>
+                <artifactId>org-openide-loaders</artifactId>
+                <version>${netbeans.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.netbeans.api</groupId>
                 <artifactId>org-netbeans-modules-settings</artifactId>
                 <version>${netbeans.version}</version>
             </dependency>
@@ -82,7 +87,7 @@
             <dependency>
                 <groupId>org.apache.pdfbox</groupId>
                 <artifactId>pdfbox</artifactId>
-                <version>2.0.2</version>
+                <version>2.0.9</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -92,7 +97,7 @@
             <dependency>
                 <groupId>com.dropbox.core</groupId>
                 <artifactId>dropbox-core-sdk</artifactId>
-                <version>1.7.7</version>
+                <version>3.0.6</version>
             </dependency>
             <dependency>
                 <groupId>com.fifesoft</groupId>
@@ -103,6 +108,11 @@
                 <groupId>com.fifesoft</groupId>
                 <artifactId>autocomplete</artifactId>
                 <version>2.5.8</version>
+            </dependency>
+	    <dependency>
+                <groupId>org.languagetool</groupId>
+                <artifactId>language-en</artifactId>
+                <version>3.6</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -146,7 +156,7 @@
     </modules>
 
     <properties>
-        <netbeans.version>RELEASE81</netbeans.version>
+        <netbeans.version>RELEASE82</netbeans.version>
         <brandingToken>openlatexstudio</brandingToken>
     </properties>
 </project>
